@@ -4,12 +4,15 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     android:paddingBottom="@dimen/activity_vertical_margin" tools:context=".MainActivity"
-    >
+    android:background="#ff20a5a0">
 
-    <TextView android:text="Please choose the neighborhood"
+    <TextView android:text="Please choose the neighborhood below"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/textView" />
+        android:id="@+id/textView"
+        android:textSize="18sp"
+        android:layout_below="@+id/editText7"
+        android:layout_centerHorizontal="true" />
 
     <Spinner
         android:layout_width="wrap_content"
@@ -17,17 +20,20 @@
         android:id="@+id/spinner"
         android:layout_below="@+id/textView"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="32dp"
+        android:dropDownSelector="#ffffffff"
+        android:focusable="false" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/editText"
         android:text="Borough:"
-        android:layout_below="@+id/spinner"
+        android:textSize="20sp"
+        android:layout_above="@+id/editText2"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_marginTop="83dp" />
+        android:layout_alignParentStart="true" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -37,7 +43,8 @@
         android:layout_alignRight="@+id/spinner"
         android:layout_alignEnd="@+id/spinner"
         android:layout_toRightOf="@+id/editText"
-        android:layout_toEndOf="@+id/editText" />
+        android:layout_toEndOf="@+id/editText"
+        android:textSize="20sp"/>
 
     <TextView
         android:layout_width="wrap_content"
@@ -46,7 +53,8 @@
         android:layout_centerVertical="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:text="1970:" />
+        android:text="1970:"
+        android:textSize="20sp"/>
 
     <TextView
         android:layout_width="wrap_content"
@@ -55,7 +63,8 @@
         android:layout_below="@+id/editText2"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:text="1980:" />
+        android:text="1980:"
+        android:textSize="20sp"/>
 
     <TextView
         android:layout_width="wrap_content"
@@ -64,7 +73,8 @@
         android:layout_below="@+id/editText3"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:text="1990:" />
+        android:text="1990:"
+        android:textSize="20sp"/>
 
     <TextView
         android:layout_width="wrap_content"
@@ -73,7 +83,8 @@
         android:layout_below="@+id/editText4"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:text="2000:" />
+        android:text="2000:"
+        android:textSize="20sp"/>
 
     <TextView
         android:layout_width="wrap_content"
@@ -82,7 +93,8 @@
         android:layout_below="@+id/editText5"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:text="2010:" />
+        android:text="2010:"
+        android:textSize="20sp"/>
 
     <TextView
         android:layout_width="wrap_content"
@@ -91,7 +103,8 @@
         android:layout_centerVertical="true"
         android:layout_toRightOf="@+id/editText"
         android:layout_alignRight="@+id/textView"
-        android:layout_alignEnd="@+id/textView" />
+        android:layout_alignEnd="@+id/textView"
+        android:textSize="20sp"/>
 
     <TextView
         android:layout_width="wrap_content"
@@ -101,7 +114,8 @@
         android:layout_alignLeft="@+id/result_1970"
         android:layout_alignStart="@+id/result_1970"
         android:layout_alignRight="@+id/result_1970"
-        android:layout_alignEnd="@+id/result_1970" />
+        android:layout_alignEnd="@+id/result_1970"
+        android:textSize="20sp"/>
 
     <TextView
         android:layout_width="wrap_content"
@@ -111,7 +125,8 @@
         android:layout_alignLeft="@+id/result_1980"
         android:layout_alignStart="@+id/result_1980"
         android:layout_alignRight="@+id/result_1980"
-        android:layout_alignEnd="@+id/result_1980" />
+        android:layout_alignEnd="@+id/result_1980"
+        android:textSize="20sp"/>
 
     <TextView
         android:layout_width="wrap_content"
@@ -121,7 +136,8 @@
         android:layout_alignLeft="@+id/result_1990"
         android:layout_alignStart="@+id/result_1990"
         android:layout_alignRight="@+id/result_1990"
-        android:layout_alignEnd="@+id/result_1990" />
+        android:layout_alignEnd="@+id/result_1990"
+        android:textSize="20sp"/>
 
     <TextView
         android:layout_width="wrap_content"
@@ -131,16 +147,19 @@
         android:layout_alignLeft="@+id/result_2000"
         android:layout_alignStart="@+id/result_2000"
         android:layout_alignRight="@+id/result_2000"
-        android:layout_alignEnd="@+id/result_2000" />
+        android:layout_alignEnd="@+id/result_2000"
+        android:textSize="20sp"/>
 
-    <Button
+    <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="submit"
-        android:id="@+id/button"
-        android:layout_below="@+id/spinner"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:id="@+id/editText7"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:text="Poplulation by NY neighborhood"
+        android:textStyle="bold"
+        android:textColor="#ffffffff"
+        android:textSize="20sp" />
 
 
 </RelativeLayout>

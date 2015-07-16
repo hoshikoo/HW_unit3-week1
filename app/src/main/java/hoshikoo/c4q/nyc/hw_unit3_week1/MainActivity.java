@@ -11,7 +11,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -46,7 +45,7 @@ public class MainActivity extends ActionBarActivity {
     TextView result90;
     TextView result00;
     TextView result10;
-    Button submitButton;
+
 
     Spinner spinner;
     String communityChosen;
@@ -58,7 +57,7 @@ public class MainActivity extends ActionBarActivity {
     String population00;
     String population10;
 
-
+    JSONObject comData;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,7 +73,6 @@ public class MainActivity extends ActionBarActivity {
         result00 = (TextView)findViewById(R.id.result_2000);
         result10 = (TextView)findViewById(R.id.result_2010);
 
-        submitButton = (Button)findViewById(R.id.button);
 
 
         String url = "https://data.cityofnewyork.us/api/views/xi7c-iiu2/rows.json?accessType=DOWNLOAD";
@@ -102,37 +100,29 @@ public class MainActivity extends ActionBarActivity {
                             mCommunityMap = getCommunityMap(jsonData);
                             mCommunityList = getCommunityList(jsonData);
 
-                            spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-
-                                @Override
-                                public void onItemSelected(AdapterView<?> arg0, View arg1,
-                                                           int arg2, long arg3) {
-                                    communityChosen = spinner.getSelectedItem().toString();
-
-                                }
-
-                                @Override
-                                public void onNothingSelected(AdapterView<?> arg0) {
-                                    // TODO Auto-generated method stub
-
-                                }
-                            });
-
-                            id = mCommunityMap.get(communityChosen);
-
-                            mCommunityData = getCommunityDetail(jsonData, id);
-
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
 
                                     updateDisplay();
+                                    spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                                        public void onItemSelected(AdapterView<?> arg0, View arg1,
+                                                                   int arg2, long arg3) {
+                                            communityChosen = spinner.getSelectedItem().toString();
 
-                                    submitButton.setOnClickListener(new View.OnClickListener() {
-                                        @Override
-                                        public void onClick(View v) {
+                                            Toast.makeText(getBaseContext(), communityChosen,
+                                                    Toast.LENGTH_LONG).show();
 
+                                            id = mCommunityMap.get(communityChosen);
+//
+//                                            Toast.makeText(getBaseContext(), id,
+//                                                    Toast.LENGTH_LONG).show();
 
+                                            try {
+                                                mCommunityData = getCommunityDetail(jsonData, (id-1));
+                                            } catch (JSONException e) {
+                                                e.printStackTrace();
+                                            }
                                             bName = mCommunityData.getmBorough();
                                             boroughName.setText(bName);
                                             population70 = Long.toString(mCommunityData.getmPopulation1970());
@@ -145,10 +135,16 @@ public class MainActivity extends ActionBarActivity {
                                             result00.setText(population00);
                                             population10 = Long.toString(mCommunityData.getmPopulation2010());
                                             result10.setText(population10);
+//
+                                        }
 
+                                        @Override
+                                        public void onNothingSelected(AdapterView<?> parent) {
 
                                         }
                                     });
+
+
                                 }
                             });
 
@@ -172,6 +168,27 @@ public class MainActivity extends ActionBarActivity {
 
 
 
+//        submitButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//
+//                bName = mCommunityData.getmBorough();
+//                boroughName.setText(bName);
+//                population70 = Long.toString(mCommunityData.getmPopulation1970());
+//                result70.setText(population70);
+//                population80 = Long.toString(mCommunityData.getmPopulation1980());
+//                result80.setText(population80);
+//                population90 = Long.toString(mCommunityData.getmPopulation1990());
+//                result90.setText(population90);
+//                population00 = Long.toString(mCommunityData.getmPopulation2000());
+//                result00.setText(population00);
+//                population10 = Long.toString(mCommunityData.getmPopulation2010());
+//                result10.setText(population10);
+//
+//            }
+//        });
+
+
 
 
     }
@@ -180,6 +197,38 @@ public class MainActivity extends ActionBarActivity {
         ArrayAdapter<String> adapter= new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1, mCommunityList);
         spinner.setAdapter(adapter);
 
+//        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener()
+//        {
+//            public void onItemSelected(AdapterView<?> arg0, View arg1,
+//                                       int arg2, long arg3)
+//            {
+//                communityChosen = spinner.getSelectedItem().toString();
+//
+//                Toast.makeText(getBaseContext(),  communityChosen,
+//                        Toast.LENGTH_LONG).show();
+
+//                id = getid(communityChosen);
+//
+//                mCommunityData = getCommunityDetail(id);
+//                bName = mCommunityData.getmBorough();
+//                boroughName.setText(bName);
+//                population70 = Long.toString(mCommunityData.getmPopulation1970());
+//                result70.setText(population70);
+//                population80 = Long.toString(mCommunityData.getmPopulation1980());
+//                result80.setText(population80);
+//                population90 = Long.toString(mCommunityData.getmPopulation1990());
+//                result90.setText(population90);
+//                population00 = Long.toString(mCommunityData.getmPopulation2000());
+//                result00.setText(population00);
+//                population10 = Long.toString(mCommunityData.getmPopulation2010());
+//                result10.setText(population10);
+
+//            }
+//            public void onNothingSelected(AdapterView<?> arg0)
+//            {
+//                // TODO Auto-generated method stub
+//            }
+//        });
     }
 
 
@@ -188,19 +237,36 @@ public class MainActivity extends ActionBarActivity {
         JSONObject comData = new JSONObject(jsonData);
         JSONArray dataArray = comData.getJSONArray("data");
 
-        HashMap<String, Integer> communityNameList = new HashMap<String, Integer>();
+        HashMap<String, Integer> communityNameMap = new HashMap<String, Integer>();
 
         if (dataArray != null) {
             for (int i=0;i<dataArray.length();i++){
                 JSONArray eachComArray = dataArray.getJSONArray(i);
                 String communityName = eachComArray.getString(10);
                 int communityId = eachComArray.getInt(0);
-                int arrayid = communityId-1;
-                communityNameList.put(communityName,arrayid);
+
+                communityNameMap.put(communityName,communityId);
             }
         }
 
-        return communityNameList;
+        return communityNameMap;
+    }
+
+    private Integer getid(String communityChosen) throws JSONException{
+        JSONArray dataArray = comData.getJSONArray("data");
+
+        if (dataArray != null) {
+            for (int i=0;i<dataArray.length();i++){
+                JSONArray eachComArray = dataArray.getJSONArray(i);
+                if (communityChosen.equals(eachComArray.getString(10))){
+                    int communityId = eachComArray.getInt(0);
+                    return communityId;
+                }
+
+            }
+        }
+
+        return null;
     }
 
 
@@ -225,8 +291,8 @@ public class MainActivity extends ActionBarActivity {
     }
 
     private CommunityData getCommunityDetail(String jsonData, int idNum) throws JSONException {
-
         JSONObject comData = new JSONObject(jsonData);
+
         JSONArray dataArray = comData.getJSONArray("data");
 
         JSONArray eachComArray = dataArray.getJSONArray(idNum);
