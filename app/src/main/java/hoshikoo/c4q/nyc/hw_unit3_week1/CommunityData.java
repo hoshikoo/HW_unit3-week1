@@ -21,13 +21,6 @@ public class CommunityData {
         this.mCommunityName = mCommunityName;
     }
 
-//    public ArrayList<String> getMcommunityList() {
-//        return mcommunityList;
-//    }
-//
-//    public void setMcommunityList(ArrayList<String> mcommunityList) {
-//        this.mcommunityList = mcommunityList;
-//    }
 
 
     public long getmPopulation1970() {
