@@ -90,6 +90,7 @@ public class MainActivity extends ActionBarActivity {
             new AsyncLoading2().execute();
 
 
+
       }
         else{
 
@@ -150,48 +151,72 @@ public class MainActivity extends ActionBarActivity {
         }
 
         @Override
-        protected void onPostExecute(HashMap<String, Integer>mCommunitymap) {
+        protected void onPostExecute(final HashMap<String, Integer> mCommunitymap) {
            spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                public void onItemSelected(AdapterView<?> arg0, View arg1,
-                                           int arg2, long arg3) {
-                    communityChosen = spinner.getSelectedItem().toString();
+               public void onItemSelected(AdapterView<?> arg0, View arg1,
+                                          int arg2, long arg3) {
+                   communityChosen = spinner.getSelectedItem().toString();
 
-                    Toast.makeText(getBaseContext(), communityChosen,
-                            Toast.LENGTH_LONG).show();
+                   Toast.makeText(getBaseContext(), communityChosen,
+                           Toast.LENGTH_LONG).show();
 
-                    showNotification();
+                   showNotification();
 
-                    id = mCommunityMap.get(communityChosen);
-                    int idForList = id-1;
+                   id = mCommunityMap.get(communityChosen);
 
-                    try {
-                        mCommunityData=new DataGetter().getCommunityDetail(idForList);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+//                   int idForList = id - 1;
+//                    String strI = Integer.toString(id-1);
+//                    Toast.makeText(getBaseContext(), strI,
+//                            Toast.LENGTH_LONG).show();
+                   new AsyncLoading3().execute();
+                   
+               }
 
-                    bName = mCommunityData.getmBorough();
-                    boroughName.setText(bName);
-                    population70 = Long.toString(mCommunityData.getmPopulation1970());
-                    result70.setText(population70);
-                    population80 = Long.toString(mCommunityData.getmPopulation1980());
-                    result80.setText(population80);
-                    population90 = Long.toString(mCommunityData.getmPopulation1990());
-                    result90.setText(population90);
-                    population00 = Long.toString(mCommunityData.getmPopulation2000());
-                    result00.setText(population00);
-                    population10 = Long.toString(mCommunityData.getmPopulation2010());
-                    result10.setText(population10);
-//
-                }
+               @Override
+               public void onNothingSelected(AdapterView<?> parent) {
 
-                @Override
-                public void onNothingSelected(AdapterView<?> parent) {
+               }
+           });
 
-                }
-            });
+        }
+
+
+    }
+
+
+    private class AsyncLoading3 extends AsyncTask<Void, Void, CommunityData> {
+
+        @Override
+        protected CommunityData doInBackground(Void... params) {
+
+            int idForList = id-1;
+
+            try {
+                mCommunityData=new DataGetter().getCommunityDetail(idForList);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return  mCommunityData;
+
+        }
+
+        @Override
+        protected void onPostExecute(CommunityData  mCommunityDate) {
+            bName = mCommunityData.getmBorough();
+            boroughName.setText(bName);
+            population70 = Long.toString(mCommunityData.getmPopulation1970());
+            result70.setText(population70);
+            population80 = Long.toString(mCommunityData.getmPopulation1980());
+            result80.setText(population80);
+            population90 = Long.toString(mCommunityData.getmPopulation1990());
+            result90.setText(population90);
+            population00 = Long.toString(mCommunityData.getmPopulation2000());
+            result00.setText(population00);
+            population10 = Long.toString(mCommunityData.getmPopulation2010());
+            result10.setText(population10);
+
 
         }
 

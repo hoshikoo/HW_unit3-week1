@@ -23,14 +23,14 @@ public class DataGetter {
     public static final String DATA_API = "https://data.cityofnewyork.us/api/views/xi7c-iiu2/rows.json?accessType=DOWNLOAD";
 
 
-    JSONObject comData;
+    public JSONObject comData = null;
 
-    String jsonData;
-
-
+    public String jsonData = null;
 
 
-    public String getJasonString() throws IOException{
+
+
+    public static String getJasonString() throws IOException{
         String result = "";
         URL url = new URL(DATA_API);
         HttpURLConnection connection = (HttpURLConnection)url.openConnection();
