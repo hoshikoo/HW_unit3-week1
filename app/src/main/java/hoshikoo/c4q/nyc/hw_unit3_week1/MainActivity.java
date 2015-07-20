@@ -1,12 +1,19 @@
 package hoshikoo.c4q.nyc.hw_unit3_week1;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.NotificationCompat;
 import android.util.Log;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
@@ -15,19 +22,11 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.squareup.okhttp.Call;
-import com.squareup.okhttp.Callback;
-import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.Response;
-
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 
 
@@ -58,6 +57,11 @@ public class MainActivity extends ActionBarActivity {
     String population10;
 
     JSONObject comData;
+    String url;
+
+    String jsonData;
+
+    private Menu optionsMenu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,242 +77,129 @@ public class MainActivity extends ActionBarActivity {
         result00 = (TextView)findViewById(R.id.result_2000);
         result10 = (TextView)findViewById(R.id.result_2010);
 
+        this.setRefreshActionButtonState(true);
 
 
-        String url = "https://data.cityofnewyork.us/api/views/xi7c-iiu2/rows.json?accessType=DOWNLOAD";
+//        url = "https://data.cityofnewyork.us/api/views/xi7c-iiu2/rows.json?accessType=DOWNLOAD";
 
         if (isNetworkAvailable()) {
-            OkHttpClient client = new OkHttpClient();
-            Request request = new Request.Builder().url(url).build();
 
-            Call call = client.newCall(request);
+//            updateDisplay();
 
-            call.enqueue(new Callback() {
-                @Override
-                public void onFailure(Request request, IOException e) {
-
-                }
-
-                @Override
-                public void onResponse(Response response) throws IOException {
-
-                    try {
-                        final String jsonData = response.body().string();
-                        Log.v(TAG, jsonData);
-                        if (response.isSuccessful()) {
-
-                            mCommunityMap = getCommunityMap(jsonData);
-                            mCommunityList = getCommunityList(jsonData);
-
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-
-                                    updateDisplay();
-                                    spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                                        public void onItemSelected(AdapterView<?> arg0, View arg1,
-                                                                   int arg2, long arg3) {
-                                            communityChosen = spinner.getSelectedItem().toString();
-
-                                            Toast.makeText(getBaseContext(), communityChosen,
-                                                    Toast.LENGTH_LONG).show();
-
-                                            id = mCommunityMap.get(communityChosen);
-//
-//                                            Toast.makeText(getBaseContext(), id,
-//                                                    Toast.LENGTH_LONG).show();
-
-                                            try {
-                                                mCommunityData = getCommunityDetail(jsonData, (id-1));
-                                            } catch (JSONException e) {
-                                                e.printStackTrace();
-                                            }
-                                            bName = mCommunityData.getmBorough();
-                                            boroughName.setText(bName);
-                                            population70 = Long.toString(mCommunityData.getmPopulation1970());
-                                            result70.setText(population70);
-                                            population80 = Long.toString(mCommunityData.getmPopulation1980());
-                                            result80.setText(population80);
-                                            population90 = Long.toString(mCommunityData.getmPopulation1990());
-                                            result90.setText(population90);
-                                            population00 = Long.toString(mCommunityData.getmPopulation2000());
-                                            result00.setText(population00);
-                                            population10 = Long.toString(mCommunityData.getmPopulation2010());
-                                            result10.setText(population10);
-//
-                                        }
-
-                                        @Override
-                                        public void onNothingSelected(AdapterView<?> parent) {
-
-                                        }
-                                    });
+            new AsyncLoading().execute();
+            new AsyncLoading2().execute();
 
 
-                                }
-                            });
+      }
+        else{
 
-                        } else {
-                            alertUserAboutError();
-                        }
-                    }
-                    catch (IOException e) {
-                        Log.e(TAG, "Exception caught: ", e);
-                    }
-                    catch (JSONException e)
-                    {Log.e(TAG, "Exception caught: ", e);
-                    }
+                alertUserAboutError();
 
-                }
-            });
-        } else{
-            Toast.makeText(this, getString(R.string.network_unavailable_message), Toast.LENGTH_LONG).show();
         }
         Log.d(TAG, "Main UI code is running");
 
-
-
-//        submitButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//
-//                bName = mCommunityData.getmBorough();
-//                boroughName.setText(bName);
-//                population70 = Long.toString(mCommunityData.getmPopulation1970());
-//                result70.setText(population70);
-//                population80 = Long.toString(mCommunityData.getmPopulation1980());
-//                result80.setText(population80);
-//                population90 = Long.toString(mCommunityData.getmPopulation1990());
-//                result90.setText(population90);
-//                population00 = Long.toString(mCommunityData.getmPopulation2000());
-//                result00.setText(population00);
-//                population10 = Long.toString(mCommunityData.getmPopulation2010());
-//                result10.setText(population10);
-//
-//            }
-//        });
-
-
-
-
-    }
-
-    private void updateDisplay() {
-        ArrayAdapter<String> adapter= new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1, mCommunityList);
-        spinner.setAdapter(adapter);
-
-//        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener()
-//        {
-//            public void onItemSelected(AdapterView<?> arg0, View arg1,
-//                                       int arg2, long arg3)
-//            {
-//                communityChosen = spinner.getSelectedItem().toString();
-//
-//                Toast.makeText(getBaseContext(),  communityChosen,
-//                        Toast.LENGTH_LONG).show();
-
-//                id = getid(communityChosen);
-//
-//                mCommunityData = getCommunityDetail(id);
-//                bName = mCommunityData.getmBorough();
-//                boroughName.setText(bName);
-//                population70 = Long.toString(mCommunityData.getmPopulation1970());
-//                result70.setText(population70);
-//                population80 = Long.toString(mCommunityData.getmPopulation1980());
-//                result80.setText(population80);
-//                population90 = Long.toString(mCommunityData.getmPopulation1990());
-//                result90.setText(population90);
-//                population00 = Long.toString(mCommunityData.getmPopulation2000());
-//                result00.setText(population00);
-//                population10 = Long.toString(mCommunityData.getmPopulation2010());
-//                result10.setText(population10);
-
-//            }
-//            public void onNothingSelected(AdapterView<?> arg0)
-//            {
-//                // TODO Auto-generated method stub
-//            }
-//        });
     }
 
 
 
-    private HashMap<String, Integer> getCommunityMap(String jsonData) throws JSONException{
-        JSONObject comData = new JSONObject(jsonData);
-        JSONArray dataArray = comData.getJSONArray("data");
+    private class AsyncLoading extends AsyncTask<Void, Void, ArrayList<String>> {
 
-        HashMap<String, Integer> communityNameMap = new HashMap<String, Integer>();
+        @Override
+        protected ArrayList<String> doInBackground(Void... params) {
+            try {
 
-        if (dataArray != null) {
-            for (int i=0;i<dataArray.length();i++){
-                JSONArray eachComArray = dataArray.getJSONArray(i);
-                String communityName = eachComArray.getString(10);
-                int communityId = eachComArray.getInt(0);
+                mCommunityList = new DataGetter().getCommunityList();
 
-                communityNameMap.put(communityName,communityId);
+                return mCommunityList;
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
+            return null;
         }
 
-        return communityNameMap;
+        @Override
+        protected void onPostExecute(final ArrayList<String>mCommunityList) {
+
+            ArrayAdapter<String> adapter = new ArrayAdapter<String>(MainActivity.this, android.R.layout.simple_list_item_1, mCommunityList);
+            spinner.setAdapter(adapter);
+        }
+
+
     }
 
-    private Integer getid(String communityChosen) throws JSONException{
-        JSONArray dataArray = comData.getJSONArray("data");
 
-        if (dataArray != null) {
-            for (int i=0;i<dataArray.length();i++){
-                JSONArray eachComArray = dataArray.getJSONArray(i);
-                if (communityChosen.equals(eachComArray.getString(10))){
-                    int communityId = eachComArray.getInt(0);
-                    return communityId;
+
+    private class AsyncLoading2 extends AsyncTask<Void, Void, HashMap<String, Integer>> {
+
+        @Override
+        protected HashMap<String, Integer> doInBackground(Void... params) {
+
+
+            try {
+                mCommunityMap = new DataGetter().getCommunityMap();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return mCommunityMap;
+
+        }
+
+        @Override
+        protected void onPostExecute(HashMap<String, Integer>mCommunitymap) {
+           spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                public void onItemSelected(AdapterView<?> arg0, View arg1,
+                                           int arg2, long arg3) {
+                    communityChosen = spinner.getSelectedItem().toString();
+
+                    Toast.makeText(getBaseContext(), communityChosen,
+                            Toast.LENGTH_LONG).show();
+
+                    showNotification();
+
+                    id = mCommunityMap.get(communityChosen);
+                    int idForList = id-1;
+
+                    try {
+                        mCommunityData=new DataGetter().getCommunityDetail(idForList);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+                    bName = mCommunityData.getmBorough();
+                    boroughName.setText(bName);
+                    population70 = Long.toString(mCommunityData.getmPopulation1970());
+                    result70.setText(population70);
+                    population80 = Long.toString(mCommunityData.getmPopulation1980());
+                    result80.setText(population80);
+                    population90 = Long.toString(mCommunityData.getmPopulation1990());
+                    result90.setText(population90);
+                    population00 = Long.toString(mCommunityData.getmPopulation2000());
+                    result00.setText(population00);
+                    population10 = Long.toString(mCommunityData.getmPopulation2010());
+                    result10.setText(population10);
+//
                 }
 
-            }
+                @Override
+                public void onNothingSelected(AdapterView<?> parent) {
+
+                }
+            });
+
         }
 
-        return null;
-    }
-
-
-    private ArrayList<String> getCommunityList(String jsonData) throws JSONException{
-        JSONObject comData = new JSONObject(jsonData);
-        JSONArray dataArray = comData.getJSONArray("data");
-
-        ArrayList<String> communityNameList = new ArrayList<>();
-
-        if (dataArray != null) {
-            for (int i=0;i<dataArray.length();i++){
-                JSONArray eachComArray = dataArray.getJSONArray(i);
-                String communityName = eachComArray.getString(10);
-
-                communityNameList.add(communityName);
-            }
-        }
-
-        Collections.sort(communityNameList);
-
-        return communityNameList;
-    }
-
-    private CommunityData getCommunityDetail(String jsonData, int idNum) throws JSONException {
-        JSONObject comData = new JSONObject(jsonData);
-
-        JSONArray dataArray = comData.getJSONArray("data");
-
-        JSONArray eachComArray = dataArray.getJSONArray(idNum);
-
-        CommunityData communitydata = new CommunityData();
-        communitydata.setmCommunityName(eachComArray.getString(10));
-        communitydata.setmBorough(eachComArray.getString(8));
-        communitydata.setmPopulation1970(eachComArray.getLong(11));
-        communitydata.setmPopulation1980(eachComArray.getLong(12));
-        communitydata.setmPopulation1990(eachComArray.getLong(13));
-        communitydata.setmPopulation2000(eachComArray.getLong(14));
-        communitydata.setmPopulation2010(eachComArray.getLong(15));
-
-        return communitydata;
 
     }
+
+
+
 
     private boolean isNetworkAvailable() {
         ConnectivityManager manager = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -326,25 +217,77 @@ public class MainActivity extends ActionBarActivity {
 
     }
 
+
+
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
+        this.optionsMenu = menu;
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_main, menu);
+        return super.onCreateOptionsMenu(menu);
     }
 
-    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
+        switch (item.getItemId()) {
+            case R.id.menuRefresh:
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+                finish();
+                startActivity(getIntent());
+
+                return true;
         }
-
         return super.onOptionsItemSelected(item);
+    }
+
+
+    public void setRefreshActionButtonState(final boolean refreshing) {
+        if (optionsMenu != null) {
+            final MenuItem refreshItem = optionsMenu
+                    .findItem(R.id.menuRefresh);
+            if (refreshItem != null) {
+                if (refreshing) {
+                    refreshItem.setActionView(R.layout.actionbar_indeterminate_progress);
+                } else {
+                    refreshItem.setActionView(null);
+                }
+            }
+        }
+    }
+
+    public static final int NOTIFICATION_ID = 1234;
+
+    private void showNotification() {
+
+        updateNotification("You checked the info about ...", communityChosen);
+    }
+
+    private void updateNotification(String titletext, String contentText){
+
+//        String titletext ="Title";
+//        contentText = communityChosen;
+
+        NotificationManager notificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
+
+        //this here is mainactivity
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
+
+        builder.setAutoCancel(true);
+
+        builder.setContentTitle(titletext);
+        builder.setSmallIcon(R.drawable.ic_action_editor_insert_comment);
+
+        builder.setContentText(contentText);
+
+
+        Intent resultIntent = new Intent(this, MainActivity.class);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, resultIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        builder.setContentIntent(pendingIntent);
+
+
+        Notification notification = builder.build();
+        notificationManager.notify(NOTIFICATION_ID, notification);
+
+
     }
 }
